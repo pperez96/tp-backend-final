@@ -1,0 +1,14 @@
+<form class="form-inline">
+  <label class="sr-only" for="inlineFormInputName1">Cedula</label>
+  <input type="number" class="form-control mb-2 mr-sm-2" name="inlineFormInputName1" placeholder="Cedula" [(ngModel)]="cliente.cedula">
+
+  <label class="sr-only" for="inlineFormInputName2">Nombre</label>
+  <input type="text" class="form-control mb-2 mr-sm-2" name="inlineFormInputName2" placeholder="Nombre" [(ngModel)]="cliente.nombre">
+
+  <label class="sr-only" for="inlineFormInputName3">Apellido</label>
+  <input type="text" class="form-control mb-2 mr-sm-2" name="inlineFormInputName3" placeholder="Apellido" [(ngModel)]="cliente.apellido">
+
+
+  <button type="submit" class="btn btn-primary mb-2" (click)=guardar()>Guardar</button>
+  <button type="button" class="btn btn-secondary mb-2" (click)=salir()>Cancelar</button>
+</form>

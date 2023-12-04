@@ -1,0 +1,29 @@
+<div>
+  <form class="row" [formGroup]="filtrarReservaForm" (ngSubmit)="onSubmit()">
+    <div class="col-md-4 mb-3">
+      <label class="form-label" for="idRestaurante">Restaurantes</label><br>
+      <select formControlName="idRestaurante" class="form-control form-select" required>
+        <option *ngFor="let restaurante of listaRestaurantes" [ngValue]="restaurante.id">{{restaurante.nombre}}</option>
+      </select>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label class="form-label" for="fechaReserva">Fecha de la Reserva</label>
+      <div class="input-group">
+        <input id="fecha" formControlName="fecha" class="form-control" placeholder="dd-mm-yyyy" name="dp"  [(ngModel)]="model" ngbDatepicker #d="ngbDatepicker" required>
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button"></button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label class="form-label" for="cedulaCliente">Clientes</label><br>
+      <select formControlName="cedulaCliente" class="form-control form-select">
+        <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.cedula">{{cliente.nombre}} {{cliente.apellido}}</option>
+      </select>
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="filtrarReservaForm.invalid">Ver lista</button>
+    </div>
+
+  </form>
+</div>

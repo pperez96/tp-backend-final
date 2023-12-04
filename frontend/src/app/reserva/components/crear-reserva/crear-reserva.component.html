@@ -1,0 +1,123 @@
+<form name="form" (ngSubmit)="f.form.valid && guardar()" #f="ngForm">
+<ngb-accordion [closeOthers]="true" [activeIds]="activado">
+  <ngb-panel id="static-1" title="Restaurante - Fecha - Horario">
+    <ng-template ngbPanelContent>
+    <div class="form-group row mb-3"><label class="col-sm-2 col-form-label">Restaurante: </label>
+      <div class="col-sm-4">
+          <select class="form-control form-select" [(ngModel)]="reserva.id_restaurante" name="restaurante" (change)="buscarMesasDisponibles()" #restaurante="ngModel" [ngClass]="{ 'is-invalid': f.submitted && restaurante.invalid }" required>
+            <option *ngFor="let item of lista" [value]="item.id">{{item.nombre}}</option>
+          </select>
+          <div *ngIf="f.submitted && restaurante.invalid" class="invalid-feedback">
+            <div *ngIf="restaurante.errors.required">Restaurante requerido</div>
+        </div>
+        </div>
+    </div>
+      <div class="form-group row mb-3">
+        <label class="col-sm-2 col-form-label">Fecha</label>
+        <div class="col-sm-4">
+          <input class="form-control" type="date" [min]="today" [(ngModel)]="reserva.fecha" name="fecha" (change)="buscarMesasDisponibles()" #fecha="ngModel" [ngClass]="{ 'is-invalid': f.submitted && fecha.invalid }" required>
+          <div *ngIf="f.submitted && fecha.invalid" class="invalid-feedback">
+            <div *ngIf="fecha.errors.required">Fecha requerida</div>
+        </div>
+        </div>
+      </div>
+      <div class="form-group row mb-3">
+        <label class="col-sm-2 col-form-label">Cantidad de horas</label>
+        <div class="col-sm-4">
+          <input class="form-control" type="number" max="4" min="1" [(ngModel)]="horaMax" name="horaMax" (change)="buildRango()">
+        </div>
+      </div>
+
+
+
+      <div class="form-group row mb-3">
+        <label class="col-sm-2 col-form-label">Horarios:</label>
+        <div class="col-sm-4">
+          <select [(ngModel)]="reserva.rango_hora" name="rango" class="form-control form-select" (change)="buscarMesasDisponibles()" #rango_hora="ngModel" [ngClass]="{ 'is-invalid': f.submitted && rango_hora.invalid }" required>
+            <option *ngFor="let item of horarios">{{item}}</option>
+          </select>
+          <div *ngIf="f.submitted && rango_hora.invalid" class="invalid-feedback">
+            <div *ngIf="rango_hora.errors.required">Rango hora requerido</div>
+        </div>
+        </div>
+      </div>
+
+    </ng-template>
+
+  </ngb-panel>
+
+  <ngb-panel id="static-3" title="Mesa - Datos Cliente" [disabled]="!(reserva.id_restaurante&&reserva.fecha&&reserva.rango_hora&&mesas.length>0)">
+    <ng-template ngbPanelContent>
+      <div class="form-group row mb-3">
+        <label class="col-sm-2 col-form-label">Mesas Disponibles:</label>
+        <div class="col-sm-4">
+          <select [(ngModel)]="reserva.id_mesa" name="mesa" class="form-control form-select" #mesa="ngModel" [ngClass]="{ 'is-invalid': f.submitted && mesa.invalid }" required>
+            <option *ngFor="let item of mesas" [value]="item.id">{{item.nombre_mesa+"- Capacidad: "+item.capacidad}}</option>
+          </select>
+          <div *ngIf="f.submitted && mesa.invalid" class="invalid-feedback">
+            <div *ngIf="mesa.errors.required">Mesa requerida</div>
+        </div>
+        </div>
+      </div>
+      <div class="form-group row mb-3">
+        <label class="col-sm-2 col-form-label">Cedula Cliente</label>
+        <div class="col-sm-2">
+          <input
+          id="typeahead-focus"
+          type="text"
+          class="form-control"
+          [(ngModel)]="cliente"
+          name="cliente"
+          [ngbTypeahead]="search"
+          [inputFormatter]="formatter"
+          [resultFormatter]="formatter"
+          (focus)="focus$.next($any($event).target.value)"
+          (click)="click$.next($any($event).target.value)"
+          #instance="ngbTypeahead"
+        />
+        </div>
+        <div class="col-sm-2">
+          <button type="button" class="btn btn-outline-secondary" (click)="open()">Crear cliente</button>
+        </div>
+      </div>
+      <div class="form-group row mb-3">
+        <label class="col-sm-2 col-form-label">Cantidad Solicitada</label>
+        <div class="col-sm-4">
+          <input class="form-control" min="1" type="number" [(ngModel)]="reserva.cantidad_solicitada" name="cantidad" #cantidad="ngModel" [ngClass]="{ 'is-invalid': f.submitted && cantidad.invalid }" required>
+          <div *ngIf="f.submitted && cantidad.invalid" class="invalid-feedback">
+            <div *ngIf="cantidad.errors.required">Cantidad de comensales no solicitado</div>
+        </div>
+        </div>
+
+      </div>
+        <button class="btn btn-primary">Guardar</button>
+
+
+
+<!--!(reserva.id_restaurante&&reserva.fecha&&reserva.rango_hora&&mesas.length>0)-->
+
+    </ng-template>
+  </ngb-panel>
+</ngb-accordion>
+<p>
+  <ngb-alert [dismissible]="false" *ngIf="activar">
+    <strong>No hay mesas disponibles!</strong>
+  </ngb-alert>
+</p>
+<p>
+  <ngb-alert [dismissible]="false" *ngIf="reservaError" type="danger">
+    <strong>Ocurrio un error al crear la reserva</strong>
+  </ngb-alert>
+</p>
+<p>
+  <ngb-alert [dismissible]="false" *ngIf="clienteError" type="danger">
+    <strong>Ocurrio un error al crear el cliente</strong>
+  </ngb-alert>
+  <ngb-alert [dismissible]="false" *ngIf="creadoConExito" type="sucess">
+    <strong>Reserva Creada exitosamente</strong>
+  </ngb-alert>
+</p>
+
+</form>
+
+

@@ -1,0 +1,57 @@
+
+<div *ngIf="restaurante"><h1>Restaurante:</h1> {{restaurante.nombre}}</div>
+<br>
+<h1>Fecha</h1> {{fecha}}
+<br>
+<div *ngIf="cliente"><h1>Cliente</h1> {{cliente.nombre}} {{cliente.apellido}}</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">RESTAURANTE</th>
+            <th scope="col">MESA</th>
+            <th scope="col">FECHA</th>
+            <th scope="col">HORA</th>
+            <th scope="col">CLIENTE</th>
+            <th scope="col">CANTIDAD DE SILLAS</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let reserva of listaReservas">
+            <td>{{reserva.id}}</td>
+            <td>{{reserva.id_restaurante}}</td>
+            <td>{{reserva.id_mesa}}</td>
+            <td>{{reserva.fecha}}</td>
+            <td>{{reserva.rango_hora}}</td>
+            <td>{{reserva.id_cliente}}</td>
+            <td>{{reserva.cantidad_solicitada}}</td>
+        </tr>
+    </tbody>
+
+</table>
+
+
+<!-- <div class="container">
+    <div class="row">
+        <div class="col">ID</div>
+        <div class="col">RESTAURANTE</div>
+        <div class="col">MESA</div>
+        <div class="col">FECHA</div>
+        <div class="col">HORA</div>
+        <div class="col">CLIENTE</div>
+        <div class="col">CANTIDAD DE SILLAS</div>
+        <br/>
+    </div>
+    <div class="row" *ngFor="let reserva of reservas">
+        <div class="col">{{reserva.id}}</div>
+        <div class="col">{{reserva.restaurante}}</div>
+        <div class="col">{{reserva.mesa}}</div>
+        <div class="col">{{reserva.fecha}}</div>
+        <div class="col">{{reserva.hora}}</div>
+        <div class="col">{{reserva.cliente}}</div>
+        <div class="col">{{reserva.cantidad_sillas}}</div>
+        <br/>
+    </div>
+</div> -->
+<!-- {{reserva.id}} {{reserva.nombre}} -->

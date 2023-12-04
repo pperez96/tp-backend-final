@@ -1,0 +1,251 @@
+<div class="d-flex flex-column">
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-3 d-flex align-items-center justify-content-start">
+                <p class="h5 pb-0 mb-0">Restaurante:</p>
+            </div>
+            <div class="col-3">
+                <select name="mesa" #mesa="ngModel" [(ngModel)]="mesa.id" class="form-select" (change)="obtenerMesas($event)">
+                    <option selected disabled>Eliga un restaurante</option>
+                    <option *ngFor="let restaurante of listRestaurante" [value]="restaurante.id">{{restaurante.nombre}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-3 d-flex align-items-center justify-content-start">
+                <p class="h5 pb-0 mb-0">Mesa:</p>
+            </div>
+            <div class="col-3">
+                <select class="form-select" aria-label="Seleccionar mesa" [disabled]="disabled" (change)="verificarConsumo($event)">
+                    <option selected>Selecciona una mesa</option>
+                    <option *ngFor="let mesa of listMesa" [value]="mesa.id">{{mesa.nombre_mesa}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-3 d-flex align-items-center justify-content-start">
+                <p class="h5 pb-0 mb-0">Cliente:</p>
+            </div>
+            <div class="col-3">
+                <input
+                id="typeahead-focus"
+                type="text"
+                class="form-control"
+                [(ngModel)]="cliente"
+                [ngbTypeahead]="search"
+                [inputFormatter]="formatter"
+                [resultFormatter]="formatter"
+                (focus)="focus$.next($any($event).target.value)"
+                (click)="click$.next($any($event).target.value)"
+                required
+              />
+            </div>
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-outline-secondary" (click)="crearCliente()">Crear cliente</button>
+              </div>
+        </div>
+    </div>
+    <div *ngIf="cerrarMesa" class="alert alert-dark" role="alert">
+        La mesa esta cerrada!
+    </div>
+    <div *ngIf="mesaNoOcupada" class="container mt-4">
+        <div class="row">
+            <div class="col-6">
+                <p class="h4">Agregar detalles consumo</p>
+            </div>
+            <div class="col-6">
+                <p class="h4">Lista de detalles</p>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-6">
+                <div class="card w-75">
+                    <div class="card-body">
+                        <form class="row" [formGroup]="formDetalleConsumo" (ngSubmit)="onSubmit()">
+                            <div class="mb-3 row">
+                                <label for="categoria" class="col-sm-3 col-form-label">Categoria:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-select" aria-label="Default select example" formControlName="id_categoria" (change)="obtenerProductos($event)">
+                                        <option selected disabled>Seleccionar categoria</option>
+                                        <option *ngFor="let categoria of listCategoria" [value]="categoria.id">{{categoria.nombre}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="categoria" class="col-sm-3 col-form-label">Producto:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-select" aria-label="Default select example" formControlName="id_producto">
+                                        <option selected disabled>Selecciona un producto</option>
+                                        <option *ngFor="let producto of listaProducto" [value]="producto.id">{{producto.nombre}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="categoria" class="col-sm-3 col-form-label">Cantidad:</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="number" min="1" formControlName="cantidad">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="submit" [disabled]="!formDetalleConsumo.valid" class="btn btn-primary">Agregar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">SubTotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let detalle of listaDetalle">
+                                <td>{{detalle.nombre}}</td>
+                                <td>{{detalle.cantidad}}</td>
+                                <td>{{detalle.precio}}</td>
+                                <td>{{detalle.subtotal}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="listaDetalle.length > 0" class="row mt-2">
+                    <button type="button" (click)="guardarConsumo()" class="btn btn-success">Guardar</button>
+                </div>
+                <div *ngIf="isMessage" class="row mt-3 alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+                <div *ngIf="isMessageError" class="row mt-3 alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="mesaOcupada" class="container mt-4">
+        <div class="row">
+            <div class="col-6">
+                <p class="h4">Agregar detalles consumo</p>
+            </div>
+            <div class="col-6">
+                <p class="h4">Lista de detalles</p>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-6">
+                <div class="card w-75">
+                    <div class="card-body">
+                        <form class="row" [formGroup]="formDetalleConsumo" (ngSubmit)="onSubmit()">
+                            <div class="mb-3 row">
+                                <label for="categoria" class="col-sm-3 col-form-label">Categoria:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-select" aria-label="Default select example" formControlName="id_categoria" (change)="obtenerProductos($event)">
+                                        <option selected disabled>Seleccionar categoria</option>
+                                        <option *ngFor="let categoria of listCategoria" [value]="categoria.id">{{categoria.nombre}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="categoria" class="col-sm-3 col-form-label">Producto:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-select" aria-label="Default select example" formControlName="id_producto">
+                                        <option selected disabled>Selecciona un producto</option>
+                                        <option *ngFor="let producto of listaProducto" [value]="producto.id">{{producto.nombre}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="categoria" class="col-sm-3 col-form-label">Cantidad:</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="number" min="1" formControlName="cantidad">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="submit" [disabled]="!formDetalleConsumo.valid" class="btn btn-primary">Agregar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">SubTotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let detalle of listaDetalle">
+                                <td>{{detalle.nombre}}</td>
+                                <td>{{detalle.cantidad}}</td>
+                                <td>{{detalle.precio}}</td>
+                                <td>{{detalle.subtotal}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div *ngIf="listaDetalle.length > 0" class="row mt-2">
+                    <button type="button" (click)="guardarConsumo()" class="btn btn-success">Guardar</button>
+                </div>
+                <div *ngIf="isMessage" class="row mt-3 alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <button *ngIf="mesaOcupada" type="button" (click)="cerrarConsumo(content)" class="btn btn-dark ms-3 mt-4 w-25">Cerrar Consumo</button>
+</div>
+<ng-template #content>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Reporte</h4>
+    </div>
+    <div class="modal-body" id="information" #information>
+        <div class="content mt-2">
+            <div class="row">
+                <label class="form-label">Fecha de creación: {{consumo.fecha_creacion}}</label>
+            </div>
+            <div class="row">
+                <label class="form-label">Fecha de cierre: {{consumo.fecha_cierre}}</label>
+            </div>
+            <div class="row">
+                <label class="form-label">Cliente: {{cliente.nombre + cliente.apellido}}</label>
+            </div>
+            <div class="row">
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">SubTotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let detalle of listaDetalle">
+                            <td>{{detalle.nombre}}</td>
+                            <td>{{detalle.cantidad}}</td>
+                            <td>{{detalle.precio}}</td>
+                            <td>{{detalle.subtotal}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <label class="fw-bold">Total: {{consumo.total}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="generarPDF()">Generar PDF</button>
+    </div>
+</ng-template>
+
+
