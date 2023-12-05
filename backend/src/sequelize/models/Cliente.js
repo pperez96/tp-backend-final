@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import SeqConexion from '../../config/conexion.js';
-import Reserva from './Reserva.js';
 
 const Cliente = SeqConexion.define('cliente', {
     id: {
