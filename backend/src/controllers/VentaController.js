@@ -5,13 +5,6 @@ const crearVenta = async (req, res) => {
         let venta = req.body;//para guardar detalles, este objeto debe tener un atributo detalles: array<DetalleVenta>
 
         venta.fecha = new Date()
-        
-        // let nuevaVenta = await Venta.create(venta,{
-        //     fields: ["nro_factura","fecha","id_cliente"],
-        //     returning: ["id","nro_factura","fecha","total","id_cliente"]
-        // });
-
-
         for (const detalle of venta.detalles) {
             let producto = await Producto.findAll({
                 attributes: ["precio"],
@@ -22,7 +15,6 @@ const crearVenta = async (req, res) => {
             let subtotal = producto[0].precio * detalle.cantidad;
             detalle.subtotal = subtotal;
         }
-
 
         // Calcula el total sumando los subtotales de los detalles
         let totalVenta = venta.detalles.reduce((total, detalle) => total + detalle.subtotal, 0);
@@ -49,11 +41,7 @@ const crearVenta = async (req, res) => {
             let subtotal = producto[0].precio * detalle.cantidad;
             detalle.subtotal = subtotal;
             detalle.id_venta = nuevaVenta.id;
-            await DetalleVenta.create(detalle, {
-                fields: ["id_venta", "id_producto", "cantidad", "subtotal"]
-            });
         }
-
         
         //colocar el id de la venta a cada detalle y agregar
         for (const i in venta.detalles) {
@@ -123,30 +111,48 @@ const modificarVenta = async (req, res) => {
         
         let ventaBD = await Venta.findByPk(idVenta,{include: DetalleVenta});
         ventaBD.id_cliente = venta.id_cliente;
+        ventaBD.total = venta.total
 
-        //TODO: CONSULTAR PRECIO POR PRODUCTO LADO SERVIDOR 
-        let total = 0
         //actualizar los detalles viejos y crear los nuevos
         let aux;
+
+        let ventaTotal = await Venta.findAll({
+            attributes: ["total"],
+            where: {id: idVenta},
+            raw: true
+        });
+
+        var totalAux = ventaTotal[0].total;
+
         for (const i in venta.detalles) {
-            console.log(venta.detalles[i].id)
-             if(venta.detalles[i].id){//Si tiene id entonces actualizar
+            for (const detalle of venta.detalles) {
+                let producto = await Producto.findAll({
+                    attributes: ["precio"],
+                    where: {id: detalle.id_producto},
+                    raw: true
+                });
+    
+                let subtotal = producto[0].precio * detalle.cantidad;
+                detalle.subtotal = subtotal;
+                
+                totalAux += subtotal
+            }
+            if(venta.detalles[i].id){//Si tiene id entonces actualizar
                 aux = venta.detalles[i].id;
                 await DetalleVenta.update(venta.detalles[i], { where: { id : aux},fields:["id_venta","id_producto","cantidad","subtotal"]});
-             }
-             else{//Si no tiene entonces crear
+            }
+            else{//Si no tiene entonces crear
                 venta.detalles[i].id_venta = ventaBD.id;
                 venta.detalles[i] = await DetalleVenta.create(venta.detalles[i],{fields:["id_venta","id_producto","cantidad","subtotal"],returning:true})
-             }
-            total += venta.detalles[i].subtotal
+            }
         }
         
         //se eliminan los id
-        for (const i in venta.eliminados) {
-            await DetalleVenta.destroy({ where: { id : venta.eliminados[i] }});
-        }
+        // for (const i in venta.eliminados) {
+        //     await DetalleVenta.destroy({ where: { id : venta.eliminados[i] }});
+        // }
         
-        ventaBD.total = total;
+        ventaBD.total = totalAux;
         let nuevaVenta = await ventaBD.save({fields:["id_cliente","total"]})
 
         nuevaVenta.detalles = await Venta.findByPk(idVenta,{include: DetalleVenta});
