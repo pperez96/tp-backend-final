@@ -52,6 +52,7 @@ const crearVenta = async (req, res) => {
         nuevaVenta = await Venta.findByPk(nuevaVenta.id,{include: DetalleVenta});
         
         if (nuevaVenta){
+            console.log("***** Se crea una nueva venta *****");
             return res.status(200).json({
                 mensaje: "Venta creada con exito",
                 dato: nuevaVenta
@@ -75,6 +76,7 @@ const obtenerVenta = async(req, res) => {
             include: DetalleVenta
         })
         
+        console.log("***** Obtenemos una venta *****");
         return res.json({
             data: venta
         });
@@ -90,6 +92,7 @@ const obtenerVenta = async(req, res) => {
 const listarVenta = async(req, res) => {
     try {
         
+        console.log("***** Listamos venta *****");
         let ventas;
         ventas = await Venta.findAll();
         return res.json({
@@ -124,6 +127,8 @@ const modificarVenta = async (req, res) => {
 
         var totalAux = ventaTotal[0].total;
 
+        let detallesActualizados = [];
+
         for (const i in venta.detalles) {
             for (const detalle of venta.detalles) {
                 let producto = await Producto.findAll({
@@ -136,15 +141,23 @@ const modificarVenta = async (req, res) => {
                 detalle.subtotal = subtotal;
                 
                 totalAux += subtotal
+
+                if(venta.detalles[i].id){//Si tiene id entonces actualizar
+                    console.log("***** Se actualiza el detalle de la venta *****");
+                    aux = venta.detalles[i].id;
+                    await DetalleVenta.update(venta.detalles[i], { where: { id : aux},fields:["id_venta","id_producto","cantidad","subtotal"]});
+                    const detalleActualizado = await DetalleVenta.findByPk(aux);
+                    detallesActualizados.push(detalleActualizado);
+                }
+                else{//Si no tiene entonces crear
+                    console.log("***** Se crea el detalle de la venta *****");
+                    venta.detalles[i].id_venta = ventaBD.id;
+                    venta.detalles[i] = await DetalleVenta.create(venta.detalles[i],{fields:["id_venta","id_producto","cantidad","subtotal"],returning:true})
+                    detallesActualizados.push(venta.detalles[i]);
+                }
+
             }
-            if(venta.detalles[i].id){//Si tiene id entonces actualizar
-                aux = venta.detalles[i].id;
-                await DetalleVenta.update(venta.detalles[i], { where: { id : aux},fields:["id_venta","id_producto","cantidad","subtotal"]});
-            }
-            else{//Si no tiene entonces crear
-                venta.detalles[i].id_venta = ventaBD.id;
-                venta.detalles[i] = await DetalleVenta.create(venta.detalles[i],{fields:["id_venta","id_producto","cantidad","subtotal"],returning:true})
-            }
+           
         }
         
         //se eliminan los id
@@ -155,8 +168,10 @@ const modificarVenta = async (req, res) => {
         ventaBD.total = totalAux;
         let nuevaVenta = await ventaBD.save({fields:["id_cliente","total"]})
 
-        nuevaVenta.detalles = await Venta.findByPk(idVenta,{include: DetalleVenta});
+        nuevaVenta.detalles = detallesActualizados;
         if (nuevaVenta){
+            nuevaVenta = await Venta.findByPk(idVenta, { include: DetalleVenta });
+            nuevaVenta.detalles = detallesActualizados;
             return res.status(200).json({
                 mensaje: "Venta modificada con exito",
                 dato: nuevaVenta
@@ -184,6 +199,7 @@ const cerrarVenta = async (req, res) => {
         venta = await Venta.findByPk(idVenta,{include: DetalleVenta});
 
         if (venta){
+            console.log("***** Cerramos una venta *****");
             return res.status(200).json({
                 mensaje: "Venta cerrada con exito",
                 dato: venta

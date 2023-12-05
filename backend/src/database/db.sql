@@ -40,7 +40,7 @@ create table detalle_venta(
     id_venta integer not null,
     id_producto integer not null,
     cantidad integer not null,
-    subtotal integer not null
+    subtotal integer
 );
 
 alter table detalle_venta add constraint id_detalle_fk_pro foreign key(id_producto) references producto(id);

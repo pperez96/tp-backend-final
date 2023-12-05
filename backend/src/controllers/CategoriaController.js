@@ -7,6 +7,7 @@ const crearCategoria = async (req, res) => {
             fields: ["nombre"]
         });
         if (nuevaCategoria){
+            console.log("***** Creamos categoria *****");
             return res.status(200).json({
                 mensaje: "Categoria creada con exito",
                 dato: nuevaCategoria
@@ -25,6 +26,7 @@ const categoriaId = async(req, res) => {
     try {
         const { id } = req.params;
         let categoria = await Categoria.findOne({ where: { id: id } });
+        console.log("***** Obtenemos categoria por ID *****");
         return res.json({
             data: categoria
         });
@@ -40,6 +42,7 @@ const categoriaId = async(req, res) => {
 const listarCategorias = async(req, res) => {
     try {
         let categorias = await Categoria.findAll();
+        console.log("***** Listamos las categorias *****");
         return res.json({
             data: categorias
         });
@@ -56,6 +59,7 @@ const eliminarCategoria = async (req, res) =>  {
     const { id } = req.params;
     let count = await Categoria.destroy({ where: { id }});
 
+    console.log("***** Eliminamos la categoria *****");
     return res.status(200).json({
         mensaje: "Categoria eliminada",
         numero_de_categorias_eliminados: count
@@ -66,6 +70,7 @@ const actualizarCategoria = async (req, res) => {
     try {
         let { id } = req.params;
         await Categoria.update(req.body, { where: { id },fields:["nombre"]});
+        console.log("***** Actualizamos la categoria *****");
         return res.status(200).json({
             mensaje: "Categoria actualizada"
         });

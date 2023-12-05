@@ -8,6 +8,7 @@ const crearProducto = async (req, res) => {
             returning: ["id","nombre", "id_categoria","precio"]
         });
         if (nuevoProducto){
+            console.log("***** Creamos un nuevo producto *****");
             return res.status(200).json({
                 mensaje: "Producto creado con exito",
                 dato: nuevoProducto
@@ -38,6 +39,8 @@ const listarProductos = async(req, res) => {
                 attributes: ["id","nombre", "id_categoria","precio"]
             });
         }
+
+        console.log("***** Listamos productos *****");
         return res.json({
             data: productos
         });
@@ -54,6 +57,7 @@ const eliminarProducto = async (req, res) =>  {
     const { id } = req.params;
     let count = await Producto.destroy({ where: { id }});
 
+    console.log("***** Eliminamos producto *****");
     return res.status(200).json({
         mensaje: "Producto eliminado",
         numero_de_producto_eliminados: count
@@ -64,6 +68,7 @@ const actualizarProducto = async (req, res) => {
     try {
         let { id } = req.params;
         await Producto.update(req.body, { where: {id},fields: ["nombre", "id_categoria","precio"]});
+        console.log("***** Actualizamos producto *****");
         return res.status(200).json({
             mensaje: "Producto actualizado"
         });

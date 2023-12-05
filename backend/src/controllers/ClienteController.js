@@ -7,6 +7,7 @@ const crearCliente = async (req, res) => {
             fields: ["cedula", "nombre", "apellido"]
         });
         if (nuevoCliente){
+            console.log("***** Creamos un cliente *****");
             return res.status(200).json({
                 mensaje: "Cliente creado con exito",
                 dato: nuevoCliente
@@ -24,6 +25,7 @@ const crearCliente = async (req, res) => {
 const obtenerClientes = async(req, res) => {
     try {
         let clientes = await Cliente.findAll();
+        console.log("***** Obtenemos clientes *****");
         return res.json({
             data: clientes
         });
@@ -40,6 +42,7 @@ const clienteCedula = async(req, res) => {
     try {
         const { cedula } = req.params;
         let cliente = await Cliente.findOne({ where: { cedula: cedula } });
+        console.log("***** Obtenemos cliente por cedula *****");
         return res.json({
             data: cliente
         });
